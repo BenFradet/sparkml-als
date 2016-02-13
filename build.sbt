@@ -3,7 +3,7 @@ lazy val root = (project in file("."))
   .settings(
     organization := "io.github.benfradet",
     name := "sparkml-als",
-    version := "0.1-SNAPSHOT",
+    version := "0.1",
     scalaVersion := "2.11.7",
     libraryDependencies ++= Seq(
       "org.apache.spark" %% "spark-core" % sparkVersion % "provided",
