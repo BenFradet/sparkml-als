@@ -49,7 +49,9 @@ public class JavaALSExample {
 
     public static Rating parseRating(String str) {
       String[] fields = str.split("::");
-      assert(fields.length == 4);
+      if (fields.length != 4) {
+        throw new IllegalArgumentException("Each line must contain 4 fields");
+      }
       int userId = Integer.parseInt(fields[0]);
       int movieId = Integer.parseInt(fields[1]);
       float rating = Float.parseFloat(fields[2]);
