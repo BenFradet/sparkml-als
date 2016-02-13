@@ -1,5 +1,6 @@
 package io.github.benfradet.sparkml.als
 
+import org.apache.log4j.{Level, Logger}
 import org.apache.spark.ml.evaluation.RegressionEvaluator
 import org.apache.spark.ml.recommendation.ALS
 import org.apache.spark.sql.SQLContext
@@ -19,12 +20,14 @@ object ALSExample {
   }
 
   def main(args: Array[String]) {
+    Logger.getLogger("org").setLevel(Level.WARN)
+
     val conf = new SparkConf().setAppName("ALSExample")
     val sc = new SparkContext(conf)
     val sqlContext = new SQLContext(sc)
 
     import sqlContext.implicits._
-    val ratings = sc.textFile("data/mllib/als/sample_movielens_ratings.txt")
+    val ratings = sc.textFile("data/sample_movielens_ratings.txt")
       .map(Rating.parseRating)
       .toDF()
     val Array(training, test) = ratings.randomSplit(Array(0.8, 0.2))
