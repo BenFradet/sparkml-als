@@ -1,5 +1,7 @@
 package io.github.benfradet.sparkml.als;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -20,57 +22,50 @@ public class JavaALSExample {
     private float rating;
     private long timestamp;
 
-    public int getUserId() {
-      return userId;
+    public Rating() {}
+
+    public Rating(int userId, int movieId, float rating, long timestamp) {
+      this.userId = userId;
+      this.movieId = movieId;
+      this.rating = rating;
+      this.timestamp = timestamp;
     }
 
-    public void setUserId(int userId) {
-      this.userId = userId;
+    public int getUserId() {
+      return userId;
     }
 
     public int getMovieId() {
       return movieId;
     }
 
-    public void setMovieId(int movieId) {
-      this.movieId = movieId;
-    }
-
     public float getRating() {
       return rating;
-    }
-
-    public void setRating(float rating) {
-      this.rating = rating;
     }
 
     public long getTimestamp() {
       return timestamp;
     }
 
-    public void setTimestamp(long timestamp) {
-      this.timestamp = timestamp;
-    }
-
     public static Rating parseRating(String str) {
       String[] fields = str.split("::");
       assert(fields.length == 4);
-      Rating rating = new Rating();
-      rating.setUserId(Integer.parseInt(fields[0]));
-      rating.setMovieId(Integer.parseInt(fields[1]));
-      rating.setRating(Float.parseFloat(fields[2]));
-      rating.setTimestamp(Long.parseLong(fields[3]));
-      return rating;
+      int userId = Integer.parseInt(fields[0]);
+      int movieId = Integer.parseInt(fields[1]);
+      float rating = Float.parseFloat(fields[2]);
+      long timestamp = Long.parseLong(fields[3]);
+      return new Rating(userId, movieId, rating, timestamp);
     }
   }
 
   public static void main(String[] args) {
+    Logger.getLogger("org").setLevel(Level.WARN);
     SparkConf conf = new SparkConf().setAppName("JavaALSExample");
     JavaSparkContext jsc = new JavaSparkContext(conf);
     SQLContext sqlContext = new SQLContext(jsc);
 
-    JavaRDD<Rating> ratingsRDD =
-      jsc.textFile("data/mllib/als/sample_movielens_ratings.txt").map(Rating::parseRating);
+    JavaRDD<Rating> ratingsRDD = jsc.textFile("data/sample_movielens_ratings.txt")
+      .map(Rating::parseRating);
     DataFrame ratings = sqlContext.createDataFrame(ratingsRDD, Rating.class);
     DataFrame[] splits = ratings.randomSplit(new double[]{0.8, 0.2});
     DataFrame training = splits[0];
