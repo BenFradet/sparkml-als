@@ -7,9 +7,11 @@ from pyspark.sql import Row, SQLContext
 
 if __name__ == "__main__":
     sc = SparkContext(appName="ALSExample")
+    logger = sc._jvm.org.apache.log4j
+    logger.LogManager.getLogger("org").setLevel(logger.Level.WARN)
     sqlContext = SQLContext(sc)
 
-    lines = sc.textFile("data/mllib/als/sample_movielens_ratings.txt")
+    lines = sc.textFile("data/sample_movielens_ratings.txt")
     parts = lines.map(lambda l: l.split("::"))
     ratingsRDD = parts.map(lambda p: Row(userId=int(p[0]), movieId=int(p[1]),
                                          rating=float(p[2]), timestamp=long(p[3])))
